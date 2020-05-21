@@ -1,0 +1,33 @@
+# ----------------------
+# Flask
+# ----------------------
+flask
+Flask-WTF
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-Script
+Flask-Login
+psycopg2
+Click
+itsdangerous
+Jinja2==2.11.1
+MarkupSafe
+Werkzeug
+WTForms
+blinker
+Flask-Mail
+email_validator
+Flask-JWT
+PyJWT
+
+Mako
+python-dateutil
+python-editor
+six
+SQLAlchemy
+
+# ----------------------
+# Production Server
+# ----------------------
+gunicorn
+alembic==1.0.7

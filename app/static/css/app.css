@@ -1,0 +1,128 @@
+body{
+    background-color: #FAEBD7; /*Brownish bacground color*/
+    padding-top: 7rem;
+}
+
+.whitecomponent{
+    background-color:white;
+    padding: 20px;
+    box-shadow: 0px 0px 3px 0px rgba(0,0,0,0.75);
+    border-radius: 5px;
+
+}
+/*  ****************** 
+        HOMEPAGE   
+ ******************  */
+
+
+/* To get a flex row set class="d-flex flex-row"  Or
+            OR NB  #homebttndiv */
+
+#home {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+#homeImg{
+    width: 500px;
+    height: 500px;
+    box-shadow: 0px 0px 3px 0px rgba(0,0,0,0.75);
+    border-radius: 5px;
+    margin-right: 15px;
+}
+
+.homebtn {
+    margin-top: 15%;
+}
+
+.overbutton {
+    text-align: center;
+    position: relative;
+    box-shadow: 0px -1px 0px 1px #DCDCDC;
+    border: solid 1px #DCDCDC;
+    font-weight: bold;
+    width: 25%;
+}
+
+.btn {
+    margin-top: 20px;
+}
+
+#profilephoto, #postphoto {
+    box-shadow: none;
+    opacity: 0;
+    position: absolute;
+    top:0;
+    left:0;
+    width: 100%;
+    height:100%;
+}
+
+#registerPage, #loginPage, #newpostPage{
+    font-weight: bold;
+    margin-left: 25%;
+    margin-right: 25%;
+}
+
+#loginPage .btn-success {
+    margin-top: 70px;
+}
+
+
+.card {
+    box-shadow: 0px 0px 3px 0px rgba(0,0,0,0.75);
+    padding: 35px;
+    margin-top: 25px;
+}
+
+.text-muted {
+    margin-left: 10%;
+}
+
+label {
+    margin-top: 20px;
+}
+
+
+
+
+/* add class="btn btn-success" to bbn to get it green class="btn btn-primary" to button to get it blue 
+#PhotogramTitle {
+    font-style: italic;
+    text-align: center;    
+{
+/
+/*  **************************************** 
+    USER REGISTRATION, LOGIN AND NEW POST 
+*****************************************  */
+
+ /*   Need to do:
+        1)Set Width
+            width: 500px;
+        2)Display form as a flex  This can done either by :
+            a) using class="d-flex flex-column" 
+                  **    OR    **
+            b) display: flex;
+               flex-direction: row;
+               
+        3) Set the button as green 
+                class="btn btn-success" 
+        */
+
+/*  ************************************ 
+                EXPLORE PAGE
+ ************************************  */
+
+/* Need to:
+1) Set img and username inline 
+    Can wrap it in a div then 
+2) Make text appear lighter
+3) Make likes and date a flex and set space bewteen
+display:flex;
+flex-direction: row;
+justify-content: space-between;
+4) Place botton to the right and blue.
+    class="btn btn-primary"
+    possibly float it to the right
+*/
