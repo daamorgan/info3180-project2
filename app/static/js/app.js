@@ -400,12 +400,16 @@ const explore=Vue.component("explore-page", {
                     <p class="card-text">{{ post.caption }}</p>
                 </div>
                 <div class="d-flex flex-row justify-content-between postfooter" >
-                    <a href="#" class="hide" @click="Likes(post.id)" :id="post.id" :v-if="post.mylike==='liked'" >
-                        <i class="fa fa-heart font-weight-bold" style="color:red">  {{ post.likes}} likes</i>
-                    </a>
-                    <a href="#"  @click="Likes(post.id)" :id="post.id" :v-else-if="post.mylike==='notliked'" >
-                        <i class="fa fa-heart-o font-weight-bold" style="color:black" >  {{ post.likes }} likes</i>
-                    </a>
+                    <div :v-if="post.mylike===false">
+                        <a href="#"  @click="Likes(post.id,post.mylike)" :id="post.id" class="liked">
+                            <i class="fa fa-heart-o font-weight-bold" style="color:black" >  {{ post.likes }} likes</i>
+                        </a>
+                    </div>
+                    <div :v-else-if="post.mylike===true">
+                        <a href="#"  @click="Likes(post.id, post.mylike)" :id="post.id" class="notliked">
+                            <i class="fa fa-heart font-weight-bold" style="color:red" >  {{ post.likes }} likes</i>
+                        </a>
+                    </div> 
                     <h6 class="font-weight-bold">{{ post.created_on }}</h6>
                 </div>
             </div>
@@ -449,30 +453,31 @@ const explore=Vue.component("explore-page", {
         NewPostpage:function(){
             router.push({path: "/post/new"})
         },
-
-        Likes:function(post_id){
+        Likes:function(post_id, mylike){
             let self=this;
-            console.log(typeof(post_id));
-            console.log(JSON.stringify({'post_id': post_id}));
+            let user_id=sessionStorage.user_id;
             fetch('/api/posts/'+ post_id +'/like', {
                 method:'POST',
                 headers: {
                     "Content-Type": "application/json",
                     'Authorization': 'Bearer ' + sessionStorage.getItem('token'),
                     },
-                body: JSON.stringify({"post_id": post_id}),
+                body: JSON.stringify({'post_id': post_id,"user_id": sessionStorage.id}),
                 credentials: 'same-origin'
-            }).then( function(response){
-                console.log(response);
-                return response.json();
+            }).then( response=>{return response.json();
             }).then(function(jsonResponse){
-                //query.classList.add('hide')
-                console.log(jsonResponse);
-                // if (jsonResponse.hasOwnProperty('posts')){
-                //     self.allpostlist = jsonResponse['posts'];
-                //     console.log(self.allpostlist);
-                //     document.getElementById(post_id).classList.remove('hide')
-                // }
+                console.log(jsonResponse); 
+                if (jsonResponse.hasOwnProperty('likesmessage')){
+                    likedSelector=".liked #"+post_id
+                    notLikedSelector=".notliked #"+post_id
+                    if (mylike){
+                        document.querySelector(likedSelector).classList.add("hide");
+                        document.querySelector(notLikedSelector).classList.remove("hide");
+                    }else{
+                        document.querySelector(likedSelector).classList.remove("hide");
+                        document.querySelector(notLikedSelector).classList.add("hide");
+                    } 
+                }
             }).catch(function (error){
                 console.log(error);
             })

@@ -237,9 +237,9 @@ def allposts():
         id=current_user.id
         list=(Likes.query.filter_by(post_id=posts.user_id).filter_by(user_id=id)).all()
         if len(list)==1:
-            mylike="liked"
+            mylike=True
         else: 
-            mylike="notliked"
+            mylike=False
 
         eachpost = {
             "id": posts.id,
