@@ -1,10 +1,5 @@
-// import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
+
 const EventBus = new Vue();
-
-
-
-
-
 
 Vue.component('app-header', {
     data:function(){
@@ -393,35 +388,97 @@ const logout=Vue.component('logout-page',{
 
 const explore=Vue.component("explore-page", {
     template:`
-    <div> 
-        <h1> EXPLORE </h1>
-        <div>
-        <!--NEED FOR LOOP 
-            <img :scr="'static/images/'+ FILENAME" > -->
-            <p> CAPTION</p>
-            <div>
-                <p>LIKES</p>
-                <p> DATE </p>
+    <div class="d-flex flex-column justify-content-between explorediv">
+        <div v-for="posts in allpostlist" class="col col-md-8 explorediv"> 
+            <div v-for="post in posts" class="whitecomponent eachpost"> 
+                <div class="card-header d-flex flex-row explorediv" id="explorecardheader">
+                    <div class="col col-sm-2 profilediv">
+                        <img :src="post.profile_photo" class="cover card-img-top images" alt="Profile Picture">
+                    </div>
+                    <router-link :to="'/users/'+ post.user_id " class="font-weight-bold"> {{ post.username }}</router-link>
+                </div>
+                <div class="explorediv postimage">
+                    <img :src="post.photo" class="cover card-img-top images" alt="Profile Picture">
+                </div>
+                <div id="caption" class="card-body">
+                    <p class="card-text">{{ post.caption }}</p>
+                </div>
+                <div class="d-flex flex-row justify-content-between postfooter" >
+                    <a href="#" class="hide" @click="Likes(post.id)" :id="post.id" :v-if="post.mylike==='liked'" >
+                        <i class="fa fa-heart font-weight-bold" style="color:red">  {{ post.likes}} likes</i>
+                    </a>
+                    <a href="#"  @click="Likes(post.id)" :id="post.id" :v-else-if="post.mylike==='notliked'" >
+                        <i class="fa fa-heart-o font-weight-bold" style="color:black" >  {{ post.likes }} likes</i>
+                    </a>
+                    <h6 class="font-weight-bold">{{ post.created_on }}</h6>
+                </div>
             </div>
         </div>
-        <router-link type="button" to="/post/new" >NewPost </router-link>
-        <button class="btn btn-primary" @click="time"> New Post </button>
-    </div> `,
-    methods:{
-        time:function(){
-        setTimeout(function(){ 
-            router.push({ path:'/users/2'}); 
-        }, 1000);    
+        <div>
+            <button class="btn btn-primary" @click="NewPostpage" id="newpostexplorebtn" > New Post </button>
+        </div>
+    </div>
+    `,
+    data:function(){
+        return{
+            allpostlist:[],
+        }
+    }, 
+    created:function(){
+        // Ensure that user cannot access this page without being authenticated.
+        if(!sessionStorage.getItem('authenticateduser')){
+            this.$router.push('/');
+            alert('Please login to access this page.')////////////////// Need to change this
+        }
+        let self=this;
+        fetch('/api/posts', {
+            method:"GET",
+            headers: {
+                'Authorization': 'Bearer ' + sessionStorage.getItem('token'),
+                },
+            credentials: 'same-origin'
+        }).then( function(response){
+            return response.json();
+        }).then(function(jsonResponse){
+            console.log(jsonResponse);
+            if (jsonResponse.hasOwnProperty('posts')){
+                self.allpostlist = jsonResponse['posts'];
+                console.log(self.allpostlist);
+            }
+        }).catch(function (error){
+            console.log(error);
+        });
+    },
+     methods:{
+        NewPostpage:function(){
+            router.push({path: "/post/new"})
+        },
+
+        Likes:function(post_id){
+            let self=this;
+            fetch('/api/posts/'+post_id +'/like', {
+                method:"POST",
+                body: JSON.stringify({'post_id': post_id}),
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': 'Bearer ' + sessionStorage.getItem('token'),
+                    },
+                credentials: 'same-origin'
+            }).then( function(response){
+                return response.json();
+            }).then(function(jsonResponse){
+                query.classList.add('hide')
+                console.log(jsonResponse);
+                // if (jsonResponse.hasOwnProperty('posts')){
+                //     self.allpostlist = jsonResponse['posts'];
+                //     console.log(self.allpostlist);
+                //     document.getElementById(post_id).classList.remove('hide')
+                // }
+            }).catch(function (error){
+                console.log(error);
+            })
         }
     }
-    // `,
-    // created:function(){
-    //     // Ensure that user cannot access this page without being authenticated.
-    //     if(!sessionStorage.getItem('authenticateduser')){
-    //         this.$router.push('/');
-    //         alert('Please login to access this page.')////////////////// Need to change this
-    //     }
-    // }
 });
 
 
@@ -443,6 +500,7 @@ const UserProfile= Vue.component("user-profile", {
         return{
             biography:'',
 
+            
             firstname:'',
             
             lastname:'',
@@ -463,15 +521,16 @@ const UserProfile= Vue.component("user-profile", {
             
             id:this.$route.params.user_id,
             
-            followtext:'',
-            followingtext:'',
             color:'#0080b3',
-            count:0
+            vari:'',
+            followerList:'',
+            text:'',
+            userid:''
          }
     },
     created:function(){ 
         
-          
+        console.log(this.id);
         this.userProfile(this.id); 
         this.numFollowers(this.id); 
 
@@ -479,8 +538,9 @@ const UserProfile= Vue.component("user-profile", {
     },
     methods:{
         userProfile:function(user_id){
-            
+           
             let self=this;
+            
             self.userid=sessionStorage.getItem('user_id');
             sessionStorage.setItem('followbtn',"Follow");
             self.text=sessionStorage.getItem('followbtn');
@@ -489,7 +549,7 @@ const UserProfile= Vue.component("user-profile", {
             
             method: 'GET',
             headers: {
-                'Authorization': 'Bearer'+sessionStorage.getItem('token')
+                'Authorization': 'Bearer '+sessionStorage.getItem('token')
             }
            
             }).then(function (response) {
@@ -530,20 +590,27 @@ const UserProfile= Vue.component("user-profile", {
             });
         },
         numFollowers:function(user_id){
-            
+           
             let self=this;
-            
+          
             
             fetch('/api/users/'+user_id+'/follow',{
                 method:'GET',
                 headers: {
-                'Authorization': 'Bearer'+sessionStorage.getItem('token')
+                'Authorization': 'Bearer '+sessionStorage.getItem('token')
             }
             }).then(function(response){
+                self.id=user_id;
                 return response.json();
             }).then(function(jsonResponse){
                 console.log(jsonResponse);
                 self.num_followers=jsonResponse.follow[0].followers;
+                self.followerList=jsonResponse.follow[1].followerList[0];
+                self.id=user_id;
+
+                console.log(self.id);
+                self.vari=(self.color!='#32CD32') && (user_id!=self.userid )&& (self.userid!=self.followerList); 
+                console.log(self.vari);
             }).catch(function(error){
                 console.log(error);
             });
@@ -551,27 +618,23 @@ const UserProfile= Vue.component("user-profile", {
         },
         postResponse:function(){
             let self=this;
-            let user_id=self.userid;
-            var variable={
-                "follower_id":self.id // Quotes added to follower_id
-            };
-            fetch('/api/users/'+user_id+'/follow',{
+           
+            let Form = document.getElementById('form');
+            let form_data = new FormData(Form);
+            fetch('/api/users/'+self.id+'/follow',{
                 method:"POST",
-                body:JSON.stringify(variable),
+                body:form_data,
                 credentials:'same-origin',
-                //cache:"no-cache",
                 headers: {
-                    "content-type": "application/json"
-                    }
-            }).then(response => {
-                console.log(response);
-                return response.json();})
-            .then (function(jsonResponse){
-                console.log("hello")
+                'Authorization': 'Bearer '+sessionStorage.getItem('token'),
+                'X-CSRFToken': token
+
+            }
+            }).then(function(response){
+                return response.json();
+            }).then (function(jsonResponse){
                 console.log(jsonResponse);
-            })
-            .catch(function(error){
-                
+            }).catch(function(error){
                 console.log(error);
             });
         }, 
@@ -582,31 +645,31 @@ const UserProfile= Vue.component("user-profile", {
             document.getElementById("btn").style.backgroundColor = "#32CD32";            
             self.color="#32CD32";
                      
-            //document.getElementById("btn").innerHTML = "Following";
-            sessionStorage.setItem("follow","Following");
-            self.text=sessionStorage.getItem('follow');
-            self.count=1;
+            document.getElementById("btn").innerHTML = "Following";
+            self.num_followers=self.num_followers+1;
+            self.text="Following";
             this.postResponse();
         }
 
-    },
-    computed:{
-             increaseFollower: function(){
-                 let self=this;
-                 return 
-                    self.num_followers+self.count
-                
-             }
+     },
+    // computed:{
+    //          increaseFollower: function(){
+    //              let self=this;
+    //              return self.num_followers+1
+    //        }
             
         
-        },
+    //     },
 
      template:`
      <div class="user-profile">
+        <form method="post" @submit.prevent="postResponse"  id="form" >
+            <input type="hidden" id="followerid" name="followerid" v-bind:value=userid>
+        </form>
         <div id="user-info">
             <div class="page-bars">
                 <div class="leftbar">
-                    <img :src="image_link" alt="Profile Photo" id="profile_photo" >
+                    <img :src="image_link" alt="Profile Photo" id="profilePhoto" >
                 </div>
                 <div class="centerbar">
                     <h4>{{firstname}} {{lastname}} </h4>
@@ -615,13 +678,14 @@ const UserProfile= Vue.component("user-profile", {
                 </div>  
                 <div class="rightbar">
                     <div class="num">{{num_posts}}</div>
-                    <div class="num" id="followers">{{increaseFollower}}</div>
+                    <div class="num" id="followers">{{num_followers}}</div>
                     <div> Posts </div> 
                     <div> Followers</div>
                     <div  class="button">
-                        <button v-if="color!='#32CD32'" id="btn" @click="changeText()">{{text}}</button>
+                        <button v-if="vari" id="btn" @click="changeText()">{{text}}</button>
                       
-                        <button v-else class="btn-primary">Follow</button>
+                        <button v-else-if="userid==followerList" class="btn-colour">Following</button>
+                        <button v-else-if="id=userid" class="btn-primary">Follow</button>
                     </div>
                 </div>      
             </div> 

@@ -84,45 +84,63 @@ label {
     margin-top: 20px;
 }
 
+margin-top: 20px;
+}		 }
 
 
+ .images {
+    max-width: 100%;
+    max-height: 100%;
+    margin: 0px;
+    object-fit: cover;
+    width:100%;
+    border: none;
 
-/* add class="btn btn-success" to bbn to get it green class="btn btn-primary" to button to get it blue 
-#PhotogramTitle {
-    font-style: italic;
-    text-align: center;    
-{
-/
-/*  **************************************** 
-    USER REGISTRATION, LOGIN AND NEW POST 
-*****************************************  */
+ }
+ #explorecardheader {
+    padding: 0px;
+    background-color: white;
+    height: 50px;
+    border: none;
+}
 
- /*   Need to do:
-        1)Set Width
-            width: 500px;
-        2)Display form as a flex  This can done either by :
-            a) using class="d-flex flex-column" 
-                  **    OR    **
-            b) display: flex;
-               flex-direction: row;
-               
-        3) Set the button as green 
-                class="btn btn-success" 
-        */
+ #explorecardheader h6 {
+    margin-top: 10px;
+    font-size: 20px;
 
-/*  ************************************ 
-                EXPLORE PAGE
- ************************************  */
+ }
 
-/* Need to:
-1) Set img and username inline 
-    Can wrap it in a div then 
-2) Make text appear lighter
-3) Make likes and date a flex and set space bewteen
-display:flex;
-flex-direction: row;
-justify-content: space-between;
-4) Place botton to the right and blue.
-    class="btn btn-primary"
-    possibly float it to the right
-*/
+ #newpostexplorebtn {
+    color: white;
+    width: 250px;
+}
+
+ .explorediv{
+    padding-top: 15px;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+ #caption {
+    height: 100px;
+    font-size: 15px;
+}
+
+ .postimage {
+    height: 500px;
+}
+.hide{
+    display: none;
+}
+ .postfooter {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+ .profilediv img{
+    height: 100%;
+}
+
+.eachpost{
+    margin:30px;
+}

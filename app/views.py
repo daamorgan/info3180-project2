@@ -8,7 +8,7 @@ This file creates your application.
 import os, jwt, base64
 from datetime import datetime
 from app import app, db, login_manager
-from flask import render_template, request, flash, url_for, redirect, jsonify, _request_ctx_stack, g
+from flask import render_template, request, flash, url_for, redirect, jsonify, _request_ctx_stack, g, session
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import Posts, Users, Likes, Follows
 from .forms import RegisterForm, LoginForm, NewPostForm
@@ -179,109 +179,81 @@ def viewposts(user_id):
     posts=[{"id":post.id, "user_id":post.user_id,"photo":post.photo,"description":post.caption,"created_on":post.created_on}for post in post_list]
     return jsonify(viewposts=posts)
 
-@app.route('/api/users/<user_id>/follow', methods=["POST","GET"])
-##@requires_auth
-#Create a Follow relationship between the current user and the target user.
+
+@app.route('/api/users/{user_id}/follow', methods=["POST"])
+@requires_auth
+# #Create a Follow relationship between the current user and the target user.
 def follow(user_id):
     print("heyyy")
     if request.method == "POST":
-        print("hhhhhhhhheyyyyy")
-        content=request.get_json()
-        print(content)
-##        content = request.body["follower_id"]
-##        
-##        followmessage = [
-##        {
-##            "message": "You are now following that user."
-##        }]
-##        
-##        follows = Follows(user_id, content["follower_id"])
-##        
-##        db.session.add(follows)
-##        db.session.commit()
-        
-        return jsonify(follow=[{"followers":"jjjjjjjjjjjj"}])
-    else:
-        currentfollows = Follows.query.filter_by(user_id=user_id).first()
-        if type(currentfollows)!=list:
-            num_followers = [{"followers":0 }]
-        else:
-            num_followers = [{"followers": len(currentfollows)}]
-        return jsonify(follow=num_followers)
-
-
-# @app.route('/api/users/{user_id}/posts', methods=["GET"])
-# #@login_required
-# @requires_auth
-# # Returns a user's posts
-# def viewposts():
-     
-#      postlist = get_uploaded_images()
-     
-#      return jsonify(postlist=postlist)
-
-# @app.route('/api/users/{user_id}/follow', methods=["POST"])
-# @requires_auth
-# #Create a Follow relationship between the current user and the target user.
-def follow(user_id):
-    
-    
-    if request.method == "POST":
-        
-        content = request.get_json()
-        
+        class Form(FlaskForm):
+            follower_id= HiddenField(None,validators=[InputRequired()])
+        form=Form()
+        followerid=request.form["follower_id"]       
         followmessage = [
         {
-            "message": "You are now following that user."
-        }]
-        
-        follows = Follows(user_id, content['follower_id'])
-        
+           "message": "You are now following that user."
+        }]   
+        follows = Follows(user_id=user_id, follower_id=followerid) 
         db.session.add(follows)
         db.session.commit()
         
-        return jsonify(followmessage=followmessage)
+        return jsonify(follow=followmessage)
+    else:
+        
+        followsList=Follows.query.filter_by(user_id=user_id).all()
+        followerList=[follow.follower_id for follow in followsList]
+        print (followerList)
+        if len(followerList)==0:
+            num_followers = [{"followers":0},{"followerList":followerList}]
+        else:
+            num_followers = [{"followers": len(followerList)},{"followerList":followerList}]
+        return jsonify(follow=num_followers)
 
-    currentfollows = Follows.query.filter_by(user_id=user_id).first()
-
-    num_followers = [
-        {
-            "followers": currentfollows
-        }]
-    return jsonify(num_followers=num_followers)
-    
 @app.route('/api/posts', methods=["GET"])
 @requires_auth
 # Return all posts for all userss
 def allposts():
-    
-    allpost = Posts.query.all()
-    
-    return jsonify({"post": allpost})
-    
+    allpostslist = Posts.query.all()
+    tables=[]   
+    for posts in allpostslist:
+        id=current_user.id
+        list=(Likes.query.filter_by(post_id=posts.user_id).filter_by(user_id=id)).all()
+        if len(list)==1:
+            mylike="liked"
+        else: 
+            mylike="notliked"
+
+        eachpost = {
+            "id": posts.id,
+            "user_id": posts.user_id,
+            "photo": '/static/uploads/'+ posts.photo ,
+            "caption": posts.caption,
+            "created_on": (posts.created_on).strftime("%d %B %Y"),
+            "username": Users.query.filter_by(id=posts.user_id).first().username,
+            "profile_photo": '/static/uploads/' + Users.query.filter_by(id=posts.user_id).first().profile_photo,
+            "likes": len(Likes.query.filter_by(post_id=posts.user_id).all()),
+            "mylike": mylike
+            }
+        tables.append(eachpost)
+        
+    return jsonify(posts={"posts": tables})
 
 @app.route('/api/posts/{post_id}/like', methods=["POST"])
 @requires_auth
 # Set a like on the current Post by the logged in User
 def like(post_id):
-    
-    likescontent = request.get_json()
-    
-    likes = Likes(likescontent["user_id"], post_id)
-    
-    db.session.add(likes)
-    db.session.commit()
-    
-    currentlikes = (Likes.query.filter_by(post_id=post_id).first()).user_id.count()
-    
-    likesmessage = [
-        {
+
+    if request.method=="post":
+        likes = Likes(current_user.id, post_id)
+        db.session.add(likes)
+        db.session.commit()
+        currentlikes = (Likes.query.filter_by(post_id=post_id).first()).user_id.count()
+        likesmessage = {
             "message": "Post liked!",
             "likes": currentlikes
-        }]
-        
-    return jsonify(likesmessage=likesmessage)
-        
+        }
+        return jsonify(likesmessage=likesmessage)
 
 ###
 # Routing for your application.
