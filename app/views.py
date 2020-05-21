@@ -17,20 +17,6 @@ from werkzeug.security import check_password_hash
 from functools import wraps
 
 
-########
-# from flask_marshmallow import Marshmallow
-
-
-# class PostSchema(ma.Schema):
-#     class Meta:
-#         fields = ('user_id', 'photo', 'caption', 'created_on')
-# post_schema = PostSchema()
-# posts_schema = PostSchema(many=True)
-
-###############
-
-
-
 
 #Create a JWT @requires_auth decorator
 # This decorator can be used to denote that a specific route should check
@@ -91,7 +77,7 @@ def register():
             
             registration = {"message": "User successfully registered"}
         
-            user = Users(username, password, firstname, lastname,email, location, biography, photofilename, joined_on)
+            user = Users(username, password, firstname, lastname, email, location, biography, photofilename, joined_on)
             db.session.add(user)
             db.session.commit()
             return jsonify(registration=registration)
@@ -155,6 +141,7 @@ def logout():
     
 
 @app.route('/api/users/<user_id>', methods=["GET"])
+@requires_auth
 @login_required
 def getUserDetails(user_id):
     
@@ -167,10 +154,40 @@ def getUserDetails(user_id):
     return jsonify(getUserDetails=user_details)
 
 
+@app.route('/api/users/<user_id>/posts', methods=["POST"])
+@login_required
+@requires_auth
+# Used for adding posts to the users feed
+def newpost(user_id):
+    newpostform = NewPostForm()
+    
+    if request.method == "POST":
+        
+        if newpostform.validate_on_submit():
             
+            caption = newpostform.caption.data
+            post_photo = newpostform.post_photo.data
+            post_photoname = secure_filename(post_photo.filename)
+            post_photo.save(os.path.join(app.config['UPLOAD_FOLDER'], post_photoname))
+            created_on = datetime.utcnow()
+
+            post = Posts(user_id, post_photoname, caption, created_on)
+            db.session.add(post)
+            db.session.commit()
+            
+            newpostmessage = {
+                    "message": "Successfully created a new post"
+                     }
+
+            return jsonify(newpostmessage=newpostmessage)
+            
+        else:
+            return jsonify(errors={"errors":form_errors(newpostform)})
+
+    return jsonify(errors={"errors":form_errors(newpostform)})    
 
 @app.route('/api/users/<user_id>/posts', methods=["GET"])
-##@requires_auth
+@requires_auth
 @login_required
 # Returns a user's posts
 def viewposts(user_id):
@@ -243,8 +260,7 @@ def allposts():
 @requires_auth
 # Set a like on the current Post by the logged in User
 def like(post_id):
-
-    if request.method=="post":
+    if request.method("POST"):
         likes = Likes(current_user.id, post_id)
         db.session.add(likes)
         db.session.commit()

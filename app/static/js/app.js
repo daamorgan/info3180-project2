@@ -1,4 +1,3 @@
-
 const EventBus = new Vue();
 
 Vue.component('app-header', {
@@ -30,9 +29,7 @@ Vue.component('app-header', {
         },
         createLink:function(){
             let self=this;
-            
             let user_id=sessionStorage.getItem('user_id');
-           
             self.path='/users/'+user_id;
         }
     },
@@ -52,7 +49,7 @@ Vue.component('app-header', {
                 <router-link class="nav-link" to="/explore"> Explore</router-link>
             </li>
             <li class="nav-item active">
-                <router-link class="nav-link" to="path"> <span @click="createLink"> My Profile</span> </router-link>
+                <router-link class="nav-link" :to="path"> <span @click="createLink"> My Profile</span> </router-link>
             </li>  
             <li class="nav-item active" v-if="isLogged === false">
                 <router-link  class="nav-link" to="/login"> Login</router-link>
@@ -127,10 +124,7 @@ const register= Vue.component( 'register-page', {
                     <label for="biography" > Biography</label>
                     <input type="textarea" name="biography">
                     <label for="profile_photo"> Photo </label>
-                    <div><label for="profilephoto" class="custom-file-upload btn btn-basic overbutton">
-                        Browse
-                    </label><span class="text-muted" id="hideThis">No file selected</span></div>
-                    <input id="profilephoto" name='profile_photo' type="file" style="display:none;">
+                    <input name='profile_photo' type="file">
                     <button type="submit" class="btn btn-success" > Register</button>
                     
             </form>
@@ -279,14 +273,18 @@ const newPost=Vue.component('newpost-page', {
                 <h1> New Post</h1>
                 <form @submit.prevent="addNewPost" method="post" id="newpostform" class="whitecomponent d-flex flex-column card card-body">
                     <label for="post_photo">Photo</label>
-                    <div><label for="postphoto" class="custom-file-upload btn btn-basic overbutton">
-                        Browse
-                    </label><span class="text-muted" id="hideButton">No file selected</span></div>
-                    <input id="postphoto" name='post_photo' type="file" style="display:none;">
+                    <input name="post_photo" type="file">
                     <label for="caption">Caption</label>
-                    <textarea name="caption" placeholder="Write a caption..." rows="3"></textarea>
-                    <button type="submit" class="btn btn-success">Submit</button>
+                    <textarea name="caption" placeholder="Write a caption..." rows="3"> </textarea>
+                    <button type="submit" >Submit</button>
                 </form>
+                <form @submit.prevent="addNewPost" method="post" id="newpostform">
+                    <label for="post_photo">Photo</label>
+                    <input type="file" name="post_photo">
+                    <label for="caption">Caption</label>
+                    <input type="textarea" name="caption">
+                    <button type="submit" class="btn btn-success" >Submit</button>
+             </form>
             </div>
         </div>
     `,
@@ -384,18 +382,16 @@ const logout=Vue.component('logout-page',{
     `
 });
 
-
-
 const explore=Vue.component("explore-page", {
     template:`
-    <div class="d-flex flex-column justify-content-between explorediv">
-        <div v-for="posts in allpostlist" class="col col-md-8 explorediv"> 
+    <div class="d-flex flex-row justify-content-between explorediv">
+        <div v-for="posts in allpostlist" class="col col-md-8 explorediv d-flex flex-column"> 
             <div v-for="post in posts" class="whitecomponent eachpost"> 
                 <div class="card-header d-flex flex-row explorediv" id="explorecardheader">
                     <div class="col col-sm-2 profilediv">
                         <img :src="post.profile_photo" class="cover card-img-top images" alt="Profile Picture">
                     </div>
-                    <router-link :to="'/users/'+ post.user_id " class="font-weight-bold"> {{ post.username }}</router-link>
+                    <router-link :to="'/users/'+ post.user_id " class="font-weight-bold" style="text-decoration: none;color:black"> {{ post.username }}</router-link>
                 </div>
                 <div class="explorediv postimage">
                     <img :src="post.photo" class="cover card-img-top images" alt="Profile Picture">
@@ -456,18 +452,21 @@ const explore=Vue.component("explore-page", {
 
         Likes:function(post_id){
             let self=this;
-            fetch('/api/posts/'+post_id +'/like', {
-                method:"POST",
-                body: JSON.stringify({'post_id': post_id}),
+            console.log(typeof(post_id));
+            console.log(JSON.stringify({'post_id': post_id}));
+            fetch('/api/posts/'+ post_id +'/like', {
+                method:'POST',
                 headers: {
                     "Content-Type": "application/json",
                     'Authorization': 'Bearer ' + sessionStorage.getItem('token'),
                     },
+                body: JSON.stringify({"post_id": post_id}),
                 credentials: 'same-origin'
             }).then( function(response){
+                console.log(response);
                 return response.json();
             }).then(function(jsonResponse){
-                query.classList.add('hide')
+                //query.classList.add('hide')
                 console.log(jsonResponse);
                 // if (jsonResponse.hasOwnProperty('posts')){
                 //     self.allpostlist = jsonResponse['posts'];
@@ -499,12 +498,8 @@ const UserProfile= Vue.component("user-profile", {
     data (){
         return{
             biography:'',
-
-            
             firstname:'',
-            
             lastname:'',
-            
             location:'',
             
             joined_on:'',
@@ -669,19 +664,19 @@ const UserProfile= Vue.component("user-profile", {
         <div id="user-info">
             <div class="page-bars">
                 <div class="leftbar">
-                    <img :src="image_link" alt="Profile Photo" id="profilePhoto" >
+                    <img :src="image_link" alt="Profile Photo" id="profile_Photo" >
                 </div>
                 <div class="centerbar">
-                    <h4>{{firstname}} {{lastname}} </h4>
-                    <p class="no-space"> {{location}} <br>Member since {{joined_on}} </p>
-                    <p>{{biography}}</p>
+                    <h4 id="fullName">{{firstname}} {{lastname}} </h4>
+                    <p class="no-space gray"> {{location}} <br>Member since {{joined_on}} </p>
+                    <p class="gray">{{biography}}</p>
                 </div>  
                 <div class="rightbar">
                     <div class="num">{{num_posts}}</div>
                     <div class="num" id="followers">{{num_followers}}</div>
-                    <div> Posts </div> 
-                    <div> Followers</div>
-                    <div  class="button">
+                    <div class="gray"> Posts </div> 
+                    <div class="gray"> Followers</div>
+                    <div class="button">
                         <button v-if="vari" id="btn" @click="changeText()">{{text}}</button>
                       
                         <button v-else-if="userid==followerList" class="btn-colour">Following</button>
@@ -717,7 +712,7 @@ const router= new VueRouter({
         {path:"/explore", component: explore },
         {path: "/logout", component: logout },
         {path: "/post/new", component: newPost},
-        {path:"/users/:user_id", component:UserProfile},/**ADDED !!!!!!!!!!! */
+        {path:"/users/:user_id", component:UserProfile},
         {path: "*", component: NotFound}
     ]
     
@@ -727,17 +722,3 @@ let app= new Vue({
     el: "#app",  /* Need to add div with id app in index.html */
     router
 });
-
-$('#profilephoto').change(function() {
-    var i = $(this).prev('label').clone();
-    var file = $('#profilephoto')[0].files[0].name;
-    var x = document.getElementById("hideThis");
-    x.innerHTML = file;
-  });
-  
-$('#postphoto').change(function() {
-    var i = $(this).prev('label').clone();
-    var file = $('#postphoto')[0].files[0].name;
-    var x = document.getElementById("hideButton");
-    x.innerHTML = file;
-  });
