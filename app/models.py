@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash
 import datetime
 
 class Posts(db.Model):   
+    __tablename__ = 'user_post'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer)
     photo = db.Column(db.String(80),unique=True)
