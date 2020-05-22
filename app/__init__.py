@@ -13,8 +13,8 @@ app = Flask(__name__)
 csrf = CSRFProtect(app)		
 
 app.config['SECRET_KEY'] = "b'\xa1\xb4\x1d'I\x88\xf5l\x13\x8a!\xedlU\x1d\xc1\x01\xe0\x12\xf1\xb2\xb5c\xf1\xea\xecg\x18\xf9\xc6\x11I'"				
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ykasbpmiqjrcfo:b674478dc298b1fd8f53f475d409dbcb788f8dae173db7da5bf6f5c6b86db2a1@ec2-54-175-117-212.compute-1.amazonaws.com:5432/d3beve9hcdn6hf'
-#app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://project2:project2Team@localhost/project2"	
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ykasbpmiqjrcfo:b674478dc298b1fd8f53f475d409dbcb788f8dae173db7da5bf6f5c6b86db2a1@ec2-54-175-117-212.compute-1.amazonaws.com:5432/d3beve9hcdn6hf'
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://project2:project2Team@localhost/project2"	
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True  # added just to suppress a warning		
 db = SQLAlchemy(app)		
 
