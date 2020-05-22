@@ -15,6 +15,9 @@ from .forms import RegisterForm, LoginForm, NewPostForm
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash
 from functools import wraps
+from wtforms.validators import InputRequired
+from wtforms import HiddenField
+from flask_wtf import FlaskForm
 
 
 
@@ -197,16 +200,15 @@ def viewposts(user_id):
     return jsonify(viewposts=posts)
 
 
-@app.route('/api/users/{user_id}/follow', methods=["POST"])
+@app.route('/api/users/<user_id>/follow', methods=["GET","POST"])
 @requires_auth
 # #Create a Follow relationship between the current user and the target user.
 def follow(user_id):
-    print("heyyy")
     if request.method == "POST":
         class Form(FlaskForm):
             follower_id= HiddenField(None,validators=[InputRequired()])
         form=Form()
-        followerid=request.form["follower_id"]       
+        followerid=request.form["followerid"]       
         followmessage = [
         {
            "message": "You are now following that user."
@@ -220,7 +222,6 @@ def follow(user_id):
         
         followsList=Follows.query.filter_by(user_id=user_id).all()
         followerList=[follow.follower_id for follow in followsList]
-        print (followerList)
         if len(followerList)==0:
             num_followers = [{"followers":0},{"followerList":followerList}]
         else:

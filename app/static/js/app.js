@@ -519,10 +519,10 @@ const UserProfile= Vue.component("user-profile", {
             
             posts: [],
             
-            id:this.$route.params.user_id,
+            targetid:'',
             
             color:'#0080b3',
-            vari:'',
+            condition:'',
             followerList:'',
             text:'',
             userid:''
@@ -530,22 +530,23 @@ const UserProfile= Vue.component("user-profile", {
     },
     created:function(){ 
         
-        console.log(this.id);
-        this.userProfile(this.id); 
-        this.numFollowers(this.id); 
+        this.userProfile(); 
+        this.numFollowers(); 
 
           
     },
     methods:{
-        userProfile:function(user_id){
-           
+        userProfile:function(){
+            const targetuser=this.$route.params.user_id;
+   
             let self=this;
-            
+            sessionStorage.setItem('id',targetuser);
+            self.targetid=sessionStorage.getItem('id');
             self.userid=sessionStorage.getItem('user_id');
             sessionStorage.setItem('followbtn',"Follow");
             self.text=sessionStorage.getItem('followbtn');
                         
-            fetch('/api/users/'+user_id, {
+            fetch('/api/users/'+self.targetid, {
             
             method: 'GET',
             headers: {
@@ -589,28 +590,25 @@ const UserProfile= Vue.component("user-profile", {
             
             });
         },
-        numFollowers:function(user_id){
+        numFollowers:function(){
            
             let self=this;
           
             
-            fetch('/api/users/'+user_id+'/follow',{
+            fetch('/api/users/'+self.targetid+'/follow',{
                 method:'GET',
                 headers: {
                 'Authorization': 'Bearer '+sessionStorage.getItem('token')
             }
             }).then(function(response){
-                self.id=user_id;
+                self.targetid=sessionStorage.getItem('id');
                 return response.json();
             }).then(function(jsonResponse){
                 console.log(jsonResponse);
                 self.num_followers=jsonResponse.follow[0].followers;
                 self.followerList=jsonResponse.follow[1].followerList[0];
-                self.id=user_id;
 
-                console.log(self.id);
-                self.vari=(self.color!='#32CD32') && (user_id!=self.userid )&& (self.userid!=self.followerList); 
-                console.log(self.vari);
+                self.condition=(self.color!='#32CD32') && (self.targetid!=self.userid )&& (self.userid!=self.followerList); 
             }).catch(function(error){
                 console.log(error);
             });
@@ -621,7 +619,7 @@ const UserProfile= Vue.component("user-profile", {
            
             let Form = document.getElementById('form');
             let form_data = new FormData(Form);
-            fetch('/api/users/'+self.id+'/follow',{
+            fetch('/api/users/'+self.targetid+'/follow',{
                 method:"POST",
                 body:form_data,
                 credentials:'same-origin',
@@ -642,25 +640,19 @@ const UserProfile= Vue.component("user-profile", {
         changeText:function () {
             let self=this;
 
-            document.getElementById("btn").style.backgroundColor = "#32CD32";            
-            self.color="#32CD32";
+           if (self.color!="#32CD32"){
+                document.getElementById("btn").style.backgroundColor = "#32CD32";            
+                self.color="#32CD32";
                      
-            document.getElementById("btn").innerHTML = "Following";
-            self.num_followers=self.num_followers+1;
-            self.text="Following";
-            this.postResponse();
+                document.getElementById("btn").innerHTML = "Following";
+                self.num_followers=self.num_followers+1;
+                self.text="Following";
+                this.postResponse();
+            }
         }
 
      },
-    // computed:{
-    //          increaseFollower: function(){
-    //              let self=this;
-    //              return self.num_followers+1
-    //        }
-            
-        
-    //     },
-
+   
      template:`
      <div class="user-profile">
         <form method="post" @submit.prevent="postResponse"  id="form" >
@@ -682,10 +674,10 @@ const UserProfile= Vue.component("user-profile", {
                     <div class="gray"> Posts </div> 
                     <div class="gray"> Followers</div>
                     <div class="button">
-                        <button v-if="vari" id="btn" @click="changeText()">{{text}}</button>
+                        <button v-if="condition" id="btn" @click="changeText()">{{text}}</button>
                       
                         <button v-else-if="userid==followerList" class="btn-colour">Following</button>
-                        <button v-else-if="id=userid" class="btn-primary">Follow</button>
+                        <button v-else-if="targetid=userid" class="btn-primary">Follow</button>
                     </div>
                 </div>      
             </div> 
