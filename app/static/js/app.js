@@ -338,14 +338,14 @@ const logout=Vue.component('logout-page',{
         // Ensure that user cannot access this page without being authenticated.
         if(!sessionStorage.getItem('authenticateduser')){
             this.$router.push('/');
-            alert('Please login to access this page.')////////////////// Need to change this
+            alert('Please login to access this page.')
         }
 
         let self=this;
         fetch('/api/auth/logout', {
             method:"GET",
             headers: {
-                'Authorization': 'Bearer ' + sessionStorage.getItem('token'),/*** Check */
+                'Authorization': 'Bearer ' + sessionStorage.getItem('token'),
                 },
             credentials: 'same-origin'
         }).then( function(response){
@@ -398,7 +398,7 @@ const explore=Vue.component("explore-page", {
                             <i class="fa fa-heart-o font-weight-bold" style="color:black" >  {{ post.likes }} likes</i>
                         </a>
                     </div>
-                    <div :v-else-if="post.mylike===true">
+                    <div :v-else-if="post.mylike===true" class= "hide">
                         <a href="#"  @click="Likes(post.id, post.mylike)" :id="post.id" class="notliked">
                             <i class="fa fa-heart font-weight-bold" style="color:red" >  {{ post.likes }} likes</i>
                         </a>
@@ -421,7 +421,7 @@ const explore=Vue.component("explore-page", {
         // Ensure that user cannot access this page without being authenticated.
         if(!sessionStorage.getItem('authenticateduser')){
             this.$router.push('/');
-            alert('Please login to access this page.')////////////////// Need to change this
+            alert('Please login to access this page.')
         }
         let self=this;
         fetch('/api/posts', {
@@ -709,6 +709,6 @@ const router= new VueRouter({
 });
 
 let app= new Vue({
-    el: "#app",  /* Need to add div with id app in index.html */
+    el: "#app", 
     router
 });
