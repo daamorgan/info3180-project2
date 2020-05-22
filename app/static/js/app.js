@@ -278,13 +278,6 @@ const newPost=Vue.component('newpost-page', {
                     <textarea name="caption" placeholder="Write a caption..." rows="3"> </textarea>
                     <button type="submit" >Submit</button>
                 </form>
-                <form @submit.prevent="addNewPost" method="post" id="newpostform">
-                    <label for="post_photo">Photo</label>
-                    <input type="file" name="post_photo">
-                    <label for="caption">Caption</label>
-                    <input type="textarea" name="caption">
-                    <button type="submit" class="btn btn-success" >Submit</button>
-             </form>
             </div>
         </div>
     `,
