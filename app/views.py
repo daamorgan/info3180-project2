@@ -144,8 +144,8 @@ def logout():
     
 
 @app.route('/api/users/<user_id>', methods=["GET"])
-@requires_auth
 @login_required
+@requires_auth
 def getUserDetails(user_id):
     
     post_list= Posts.query.filter_by(user_id=user_id).all()
@@ -190,8 +190,8 @@ def newpost(user_id):
     return jsonify(errors={"errors":form_errors(newpostform)})    
 
 @app.route('/api/users/<user_id>/posts', methods=["GET"])
-@requires_auth
 @login_required
+@requires_auth
 # Returns a user's posts
 def viewposts(user_id):
     userid=user_id
