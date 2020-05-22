@@ -543,7 +543,7 @@ const UserProfile= Vue.component("user-profile", {
             
             method: 'GET',
             headers: {
-                'Authorization': 'Bearer '+sessionStorage.getItem('token')
+                'Authorization': 'Bearer '+ sessionStorage.getItem('token')
             }
            
             }).then(function (response) {
